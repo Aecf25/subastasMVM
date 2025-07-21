@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'rest_framework_simplejwt',
+    'cloudinary',
+    'cloudinary_storage',
 ]
 
 MIDDLEWARE = [
@@ -79,9 +81,7 @@ WSGI_APPLICATION = 'DBDjango.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    'default': dj_database_url.config(
-        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}"
-    )
+    'default': dj_database_url.config() 
 }
 
 
@@ -152,3 +152,12 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'subastasmvm@gmail.com'
 EMAIL_HOST_PASSWORD = 'bsif ultt zeza xazr'
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME', 'de7mgzvnk'),
+    'API_KEY': os.environ.get('CLOUDINARY_API_KEY', '657881212197842'),
+    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET', 'msrnpjzwKkZyXBUejzkstAWOujA'),
+}
+
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
