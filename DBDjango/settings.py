@@ -32,6 +32,7 @@ ALLOWED_HOSTS = ['.onrender.com', 'localhost', '127.0.0.1']
 # Application definition
 
 INSTALLED_APPS = [
+    'cloudinary_storage',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -43,7 +44,6 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'rest_framework_simplejwt',
     'cloudinary',
-    'cloudinary_storage',
 ]
 
 MIDDLEWARE = [
@@ -81,9 +81,11 @@ WSGI_APPLICATION = 'DBDjango.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    'default': dj_database_url.config() 
+    'default': dj_database_url.config(
+        default='postgresql://mvm_subastas_user:qWicPG7keEqdEreslP87zJ46qlEzrGla@dpg-d1v2t5qdbo4c73f4cl2g-a.virginia-postgres.render.com/mvm_subastas',
+        conn_max_age=600
+    )
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -119,6 +121,15 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME', 'de7mgzvnk'),
+    'API_KEY': os.environ.get('CLOUDINARY_API_KEY', '657881212197842'),
+    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET', 'msrnpjzwKkZyXBUejzkstAWOujA'),
+}
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
 STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
@@ -152,12 +163,3 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'subastasmvm@gmail.com'
 EMAIL_HOST_PASSWORD = 'bsif ultt zeza xazr'
-
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME', 'de7mgzvnk'),
-    'API_KEY': os.environ.get('CLOUDINARY_API_KEY', '657881212197842'),
-    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET', 'msrnpjzwKkZyXBUejzkstAWOujA'),
-}
-
-
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'

@@ -71,8 +71,8 @@ class BidParticipation(models.Model):
 
 class Noticias(models.Model):
      title = models.CharField(max_length=70)
-     body = models.CharField()
-     creator = models.CharField()
+     body = models.TextField()
+     creator = models.CharField(max_length=70)
      date = models.DateTimeField(auto_now=True)
      portada = models.ImageField(upload_to='noticias_photos/', null=True, blank=True)
      
