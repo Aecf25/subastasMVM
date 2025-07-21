@@ -34,3 +34,6 @@ urlpatterns = [
     path('noticias/', obtenerNoticias, name='listar-noticias'),
     path('noticias/eliminar/<int:id>/', borrar_noticia, name='borrar-noticia'),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
