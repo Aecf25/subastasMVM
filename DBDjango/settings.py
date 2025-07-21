@@ -163,3 +163,8 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'subastasmvm@gmail.com'
 EMAIL_HOST_PASSWORD = 'bsif ultt zeza xazr'
+
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+]
