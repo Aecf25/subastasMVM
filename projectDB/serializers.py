@@ -4,6 +4,7 @@ from django.contrib.auth.hashers import make_password
 
 class VehicleUserSerializer(serializers.ModelSerializer):
     photoVehicle = serializers.ImageField(required=False, allow_null=True)
+
     class Meta:
         model = VehicleUser
         fields = '__all__'
@@ -16,16 +17,17 @@ class VehicleUserSerializer(serializers.ModelSerializer):
             from .models import Usuario
             user = Usuario.objects.get(id=user)
 
-        if VehicleUser.objects.filter(usuario = user, vehicleId= vehicleId).exists():
+        if VehicleUser.objects.filter(usuario=user, vehicleId=vehicleId).exists():
             raise serializers.ValidationError({
-                'vehicleId': 'Este usuario ya tiene registrado un vehiculo con esta placa.'
+                'vehicleId': 'Este usuario ya tiene registrado un vehículo con esta placa.'
             })
-        
         return data
+
 
 class UsuarioSerializer(serializers.ModelSerializer):
     vehiculos = VehicleUserSerializer(many=True, read_only=True)
     photoPerson = serializers.ImageField(required=False, allow_null=True)
+
     class Meta:
         model = Usuario
         fields = '__all__'
@@ -38,7 +40,7 @@ class UsuarioSerializer(serializers.ModelSerializer):
         if Usuario.objects.filter(personId=data.get('personId')).exists():
             raise serializers.ValidationError({"personId": "El personId ya está en uso."})
         return data
-    
+
     def get_photoPerson(self, obj):
         request = self.context.get('request')
         if obj.photoPerson:
@@ -48,22 +50,25 @@ class UsuarioSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         validated_data['password'] = make_password(validated_data['password'])
-
         validated_data['is_superuser'] = False
         validated_data['is_staff'] = False
         validated_data['is_active'] = True
-
         return super().create(validated_data)
+
 
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Usuario
-        fields = ['id', 'user', 'photoPerson', 'personId', 'phone', 'birthday']
+        fields = ['id', 'username', 'photoPerson', 'personId', 'phone', 'birthday']
+
 
 class VehicleSerializer(serializers.ModelSerializer):
+    photoVehicle = serializers.ImageField(required=False, allow_null=True)
+
     class Meta:
         model = VehicleUser
         fields = ['id', 'photoVehicle', 'vehicleId', 'typeCar', 'brandCar', 'ownerName']
+
 
 class BidSerializer(serializers.ModelSerializer):
     imgBid = serializers.ImageField(required=False, allow_null=True)
@@ -85,34 +90,34 @@ class BidSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         if obj.imgBid:
             url = obj.imgBid.url
-            if request:
-                return request.build_absolute_uri(url)
-            return url
+            return request.build_absolute_uri(url) if request else url
         return None
 
-class BidParticipationSerializer(serializers.ModelSerializer):
 
+class BidParticipationSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source='usuario.username', read_only=True)
     email = serializers.CharField(source='usuario.email', read_only=True)
     photoPerson = serializers.SerializerMethodField()
-    subasta_nombre = serializers.CharField(source='subasta.title', read_only=True) 
+    subasta_nombre = serializers.CharField(source='subasta.title', read_only=True)
 
     class Meta:
         model = BidParticipation
-        fields = ['id', 'subasta', 'subasta_nombre' ,'usuario', 'username' , 'email', 'cantidad', 'fecha', 'photoPerson','vehiculo_info']
+        fields = [
+            'id', 'subasta', 'subasta_nombre', 'usuario',
+            'username', 'email', 'cantidad', 'fecha', 'photoPerson', 'vehiculo_info'
+        ]
         read_only_fields = ['fecha', 'username', 'email', 'photoPerson']
 
     def get_photoPerson(self, obj):
         request = self.context.get('request')
         if obj.usuario.photoPerson:
             url = obj.usuario.photoPerson.url
-            if request:
-                return request.build_absolute_uri(url)
-            return url
+            return request.build_absolute_uri(url) if request else url
         return None
-    
+
+
 class NoticiasMVMSubastas(serializers.ModelSerializer):
-    portada = serializers.SerializerMethodField()
+    portada = serializers.ImageField(required=False, allow_null=True)
 
     class Meta:
         model = Noticias
@@ -122,8 +127,5 @@ class NoticiasMVMSubastas(serializers.ModelSerializer):
         request = self.context.get('request')
         if obj.portada:
             url = obj.portada.url
-            if request:
-                return request.build_absolute_uri(url)
-            return url
+            return request.build_absolute_uri(url) if request else url
         return None
-
