@@ -1,12 +1,13 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from cloudinary.models import CloudinaryField
 
 class Usuario(AbstractUser):
     birthday = models.CharField(max_length=50)
     phone = models.CharField(max_length=50)
     personId = models.CharField(max_length=50)
     name = models.CharField(max_length=50, null=True, blank=True)
-    photoPerson = models.ImageField(upload_to='person_photos/', null=True, blank=True)
+    photoPerson = CloudinaryField('photoUser',folder='person_photos/', null=True, blank=True)
     cartera = models.IntegerField(
         default = 0.00
     )
@@ -27,13 +28,13 @@ class VehicleUser(models.Model):
         typeCar = models.CharField(max_length=50)
         brandCar = models.CharField(max_length=50)
         vehicleId = models.CharField(max_length=50)
-        photoVehicle = models.ImageField(upload_to='vehicle_photos/', null=True, blank=True)
+        photoVehicle = CloudinaryField('photoVehicle',folder='vehicle_photos/', null=True, blank=True)
         
         def __str__(self):
             return f"{self.brandCar} - {self.vehicleId}"
         
 class BidFormat(models.Model):
-     imgBid = models.ImageField(upload_to='subastas_photos/',null=True, blank=True)
+     imgBid = CloudinaryField('photoBid',folder='subastas_photos/',null=True, blank=True)
      title = models.CharField(max_length=50)
      direction1 = models.CharField(max_length=150)
      direction2 = models.CharField(max_length=150)
@@ -74,7 +75,7 @@ class Noticias(models.Model):
      body = models.TextField()
      creator = models.CharField(max_length=70)
      date = models.DateTimeField(auto_now=True)
-     portada = models.ImageField(upload_to='noticias_photos/', null=True, blank=True)
+     portada = CloudinaryField('photoNews',folder='noticias_photos/', null=True, blank=True)
      
      def __str__(self):
           return f"Noticia: {self.title}, creada el {self.date} por {self.creator}"
