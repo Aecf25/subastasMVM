@@ -1,13 +1,28 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from cloudinary.models import CloudinaryField
+import cloudinary.uploader
 
 class Usuario(AbstractUser):
     birthday = models.CharField(max_length=50)
     phone = models.CharField(max_length=50)
     personId = models.CharField(max_length=50)
     name = models.CharField(max_length=50, null=True, blank=True)
-    photoPerson = CloudinaryField('photoUser',folder='person_photos/', null=True, blank=True)
+    photoPerson = CloudinaryField('photoUser', null=True, blank=True)
+    def save(self, *args, **kwargs):
+        # Si hay una nueva imagen cargada (y no es string URL)
+        if self.photoPerson and hasattr(self.photoPerson, 'file'):
+            upload_result = cloudinary.uploader.upload(
+                self.photoPerson.file,
+                folder='person_photos',
+                public_id=self.username,  # Aquí la carpeta será 'person_photos/username'
+                overwrite=True,
+                resource_type='image'
+            )
+            # Actualiza el campo con la ruta pública
+            self.photoPerson.name = upload_result['public_id'] + '.' + upload_result['format']
+
+        super().save(*args, **kwargs)
     cartera = models.IntegerField(
         default = 0.00
     )
