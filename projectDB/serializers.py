@@ -38,6 +38,13 @@ class UsuarioSerializer(serializers.ModelSerializer):
         if Usuario.objects.filter(personId=data.get('personId')).exists():
             raise serializers.ValidationError({"personId": "El personId ya está en uso."})
         return data
+    
+    def get_photoPerson(self, obj):
+        request = self.context.get('request')
+        if obj.photoPerson:
+            url = obj.photoPerson.url
+            return request.build_absolute_uri(url) if request else url
+        return None
 
     def create(self, validated_data):
         validated_data['password'] = make_password(validated_data['password'])
@@ -59,14 +66,29 @@ class VehicleSerializer(serializers.ModelSerializer):
         fields = ['id', 'photoVehicle', 'vehicleId', 'typeCar', 'brandCar', 'ownerName']
 
 class BidSerializer(serializers.ModelSerializer):
+    imgBid = serializers.SerializerMethodField()
+
     class Meta:
         model = BidFormat
-        fields = ['id', 'imgBid', 'title', 'direction1', 'direction2', 'timeLimit', 'price', 'winner', 'notificated', 'created', 'estado', 'historial_pujas_activa']
+        fields = [
+            'id', 'imgBid', 'title', 'direction1', 'direction2',
+            'timeLimit', 'price', 'winner', 'notificated',
+            'created', 'estado', 'historial_pujas_activa'
+        ]
         extra_kwargs = {
             'winner': {'required': False},
             'estado': {'required': False},
             'historial_pujas_activa': {'required': False}
         }
+
+    def get_imgBid(self, obj):
+        request = self.context.get('request')
+        if obj.imgBid:
+            url = obj.imgBid.url
+            if request:
+                return request.build_absolute_uri(url)
+            return url
+        return None
 
 class BidParticipationSerializer(serializers.ModelSerializer):
 
@@ -90,6 +112,18 @@ class BidParticipationSerializer(serializers.ModelSerializer):
         return None
     
 class NoticiasMVMSubastas(serializers.ModelSerializer):
+    portada = serializers.SerializerMethodField()
+
     class Meta:
         model = Noticias
-        fields = '__all__'
+        fields = ['id', 'title', 'body', 'creator', 'date', 'portada']
+
+    def get_portada(self, obj):
+        request = self.context.get('request')
+        if obj.portada:
+            url = obj.portada.url
+            if request:
+                return request.build_absolute_uri(url)
+            return url
+        return None
+
