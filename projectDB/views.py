@@ -484,5 +484,5 @@ def borrar_noticia(request, id):
     except:
         return Response({'error': 'Noticia no encontrada'}, status= status.HTTP_404_BAD_REQUEST)
 
-#.\venv\Scripts\activate
+#.\venv\Scripts\Activate
 #python manage.py runserver 0.0.0.0:8000

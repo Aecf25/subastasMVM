@@ -8,7 +8,7 @@ class Usuario(AbstractUser):
     phone = models.CharField(max_length=50)
     personId = models.CharField(max_length=50)
     name = models.CharField(max_length=50, null=True, blank=True)
-    photoPerson = CloudinaryField('photoUser', null=True, blank=True)
+    photoPerson = CloudinaryField('photoUser', folder='person_photos' ,null=True, blank=True)
     def save(self, *args, **kwargs):
         # Si hay una nueva imagen cargada (y no es string URL)
         if self.photoPerson and hasattr(self.photoPerson, 'file'):
@@ -44,12 +44,34 @@ class VehicleUser(models.Model):
         brandCar = models.CharField(max_length=50)
         vehicleId = models.CharField(max_length=50)
         photoVehicle = CloudinaryField('photoVehicle',folder='vehicle_photos/', null=True, blank=True)
-        
+        def save(self, *args, **kwargs):
+            if self.photoVehicle and hasattr(self.photoVehicle, 'file'):
+                upload_result = cloudinary.uploader.upload(
+                    self.photoVehicle.file,
+                    folder='vehicle_photos',
+                    public_id=f'vehicle_{self.vehicleId}',
+                    overwrite=True,
+                    resource_type='image'
+                )
+                self.photoVehicle.name = upload_result['public_id'] + '.' + upload_result['format']
+            super().save(*args, **kwargs)
+
         def __str__(self):
             return f"{self.brandCar} - {self.vehicleId}"
         
 class BidFormat(models.Model):
      imgBid = CloudinaryField('photoBid',folder='subastas_photos/',null=True, blank=True)
+     def save(self, *args, **kwargs):
+        if self.imgBid and hasattr(self.imgBid, 'file'):
+            upload_result = cloudinary.uploader.upload(
+                self.imgBid.file,
+                folder='subastas_photos',
+                public_id=f'bid_{self.id or self.title}',
+                overwrite=True,
+                resource_type='image'
+            )
+            self.imgBid.name = upload_result['public_id'] + '.' + upload_result['format']
+        super().save(*args, **kwargs)
      title = models.CharField(max_length=50)
      direction1 = models.CharField(max_length=150)
      direction2 = models.CharField(max_length=150)
@@ -91,7 +113,18 @@ class Noticias(models.Model):
      creator = models.CharField(max_length=70)
      date = models.DateTimeField(auto_now=True)
      portada = CloudinaryField('photoNews',folder='noticias_photos/', null=True, blank=True)
-     
+     def save(self, *args, **kwargs):
+        if self.portada and hasattr(self.portada, 'file'):
+            upload_result = cloudinary.uploader.upload(
+                self.portada.file,
+                folder='noticias_photos',
+                public_id=f'news_{self.id or self.title}',
+                overwrite=True,
+                resource_type='image'
+            )
+            self.portada.name = upload_result['public_id'] + '.' + upload_result['format']
+        super().save(*args, **kwargs)
+
      def __str__(self):
           return f"Noticia: {self.title}, creada el {self.date} por {self.creator}"
      
