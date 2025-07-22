@@ -66,7 +66,7 @@ class VehicleSerializer(serializers.ModelSerializer):
         fields = ['id', 'photoVehicle', 'vehicleId', 'typeCar', 'brandCar', 'ownerName']
 
 class BidSerializer(serializers.ModelSerializer):
-    imgBid = serializers.SerializerMethodField()
+    imgBid = serializers.ImageField(required=False, allow_null=True)
 
     class Meta:
         model = BidFormat
