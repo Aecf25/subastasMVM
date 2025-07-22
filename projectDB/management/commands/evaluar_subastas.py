@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from django.utils import timezone
-from models import BidFormat, BidParticipation
+from projectDB.models import BidFormat, BidParticipation
 from django.contrib.auth import get_user_model
 
 class Command(BaseCommand):
