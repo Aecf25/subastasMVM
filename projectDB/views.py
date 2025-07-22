@@ -66,23 +66,13 @@ def profile(request):
         return Response(serializer.data)
     
     elif request.method == 'PUT':
-        data = request.data
-        first_name = data.get('first_name')
-        last_name = data.get('last_name')
-        phone = data.get('phone')
-
-        if first_name is not None:
-            user.first_name = first_name
-        if last_name is not None:
-            user.last_name = last_name
-        if phone is not None:
-            user.phone = phone
-
-        photo = request.FILES.get('photoPerson')
-        if photo:
-            user.photoPerson.save(photo.name, photo, save=False)
-        user.save()
-        return Response({'message': 'Perfil actualizado correctamente'}, status=status.HTTP_200_OK)
+        serializer = UsuarioSerializer(user, data=request.data, partial=True)  # partial=True para actualización parcial
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message': 'Perfil actualizado correctamente'}, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
 
 @api_view(['GET'])
 def user_list(request):
