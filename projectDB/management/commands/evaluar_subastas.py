@@ -22,7 +22,6 @@ class Command(BaseCommand):
             ganador = puja.usuario
             subasta.estado = 'finalizada'
             subasta.winner = ganador.username
-            subasta.notificated = True
             subasta.save()
 
             historial_subasta = {
