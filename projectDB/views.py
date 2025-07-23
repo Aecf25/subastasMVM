@@ -19,6 +19,8 @@ from django.utils.timezone import now
 from datetime import date
 from django.db.models import Count
 from django.db.models.functions import ExtractWeek, ExtractYear, ExtractMonth
+from django.core.management import call_command
+import io
 
 @api_view(['POST'])
 @parser_classes([MultiPartParser, FormParser])
@@ -501,6 +503,15 @@ def borrar_noticia(request, id):
         return Response({'mensaje' : 'Noticia eliminada correctamente'}, status= status.HTTP_204_NO_CONTENT)
     except:
         return Response({'error': 'Noticia no encontrada'}, status= status.HTTP_404_BAD_REQUEST)
+
+@api_view(['GET'])  # o POST si quieres
+def evaluar_subastas_view(request):
+    if request.query_params.get("clave") != "5487996asd5a5sd4AAsd2a4": 
+        return Response({"detail": "No autorizado"}, status=403)
+
+    buffer = io.StringIO()
+    call_command('evaluar_subastas', stdout=buffer)
+    return Response({'output': buffer.getvalue()})
 
 #.\venv\Scripts\Activate
 #python manage.py runserver 0.0.0.0:8000

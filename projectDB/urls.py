@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import user_list, login, register, profile, agregar_vehiculo_por_username , user_data_view, BidViewSet, realizar_apuesta, ver_participantes_subasta, cambiar_contraseña, enviar_codigo, verificar_codigo, evaluar_subasta, cancelar_subasta, confirmar_entrega_subasta, editar_subasta, actualizar_estado_conexion, agregarNoticia, borrar_noticia, obtenerNoticias, update_last_login, report_users_by_day, report_users_by_week, report_users_by_month
+from .views import user_list, login, register, profile, agregar_vehiculo_por_username , user_data_view, BidViewSet, realizar_apuesta, ver_participantes_subasta, cambiar_contraseña, enviar_codigo, verificar_codigo, evaluar_subasta, cancelar_subasta, confirmar_entrega_subasta, editar_subasta, actualizar_estado_conexion, agregarNoticia, borrar_noticia, obtenerNoticias, update_last_login, report_users_by_day, report_users_by_week, report_users_by_month, evaluar_subastas_view
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -33,6 +33,7 @@ urlpatterns = [
     path('noticias/agregar/', agregarNoticia, name='agregar-noticia'),
     path('noticias/', obtenerNoticias, name='listar-noticias'),
     path('noticias/eliminar/<int:id>/', borrar_noticia, name='borrar-noticia'),
+    path('evaluar-todas-subastas/', evaluar_subastas_view),
 ]
 
 if settings.DEBUG:
