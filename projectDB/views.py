@@ -376,7 +376,6 @@ def evaluar_subasta(request, subasta_id):
     # Declarar ganador
     subasta.estado = 'finalizada'
     subasta.winner = ganador.username
-    subasta.notificated = True
     subasta.save()
 
     fecha_actual = timezone.now() 
@@ -420,6 +419,25 @@ def cancelar_subasta(request, subasta_id):
     subasta.estado = 'cancelada'
     subasta.save()
     return Response({'message': 'Subasta cancelada manualmente'}, status=200)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def confirmar_notificacion_subasta(request, subasta_id):
+    try:
+        subasta = BidFormat.objects.get(id=subasta_id)
+    except BidFormat.DoesNotExist:
+        return Response({'error': 'Subasta no encontrada'}, status=404)
+
+    if subasta.winner != request.user.username:
+        return Response({'error': 'No autorizado para confirmar esta subasta.'}, status=403)
+
+    if subasta.notificated:
+        return Response({'mensaje': 'Ya confirmaste esta subasta.'}, status=200)
+
+    subasta.notificated = True
+    subasta.save()
+
+    return Response({'mensaje': 'Notificación confirmada correctamente.'}, status=200)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
