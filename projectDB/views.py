@@ -513,5 +513,26 @@ def evaluar_subastas_view(request):
     call_command('evaluar_subastas', stdout=buffer)
     return Response({'output': buffer.getvalue()})
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def subastas_ganadas_no_notificadas(request):
+    user = request.user
+    subastas = BidFormat.objects.filter(
+        winner = user.username,
+        estado = 'finalizada',
+        notificated = False
+    ).values('id', 'title', 'price')
+
+    return Response({'subastas': list(subastas)})
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def marcar_subastas_como_notificadas(request):
+    user = request.user
+    ids = request.data.get('ids', [])
+    BidFormat.objects.filter(id__in=ids, winner=user.username).update(notificated=True)
+    
+    return Response({'message': 'Subastas marcadas como notificadas'})
+
 #.\venv\Scripts\Activate
 #python manage.py runserver 0.0.0.0:8000
