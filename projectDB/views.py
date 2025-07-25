@@ -21,6 +21,7 @@ from django.db.models import Count
 from django.db.models.functions import ExtractWeek, ExtractYear, ExtractMonth
 from django.core.management import call_command
 import io
+from django.db import IntegrityError
 
 @api_view(['POST'])
 @parser_classes([MultiPartParser, FormParser])
@@ -541,11 +542,15 @@ def registrar_token_fcm(request):
     if not token:
         return Response({'error': 'Token requerido'}, status=400)
 
-    FCMToken.objects.update_or_create(
-        user=request.user,
-        defaults={'token': token}
-    )
-    return Response({'detail': 'Token registrado correctamente'})
+    try:
+        # Opción 1: Crear solo si no existe combinación user-token
+        obj, created = FCMToken.objects.get_or_create(user=request.user, token=token)
+        return Response({'detail': 'Token registrado correctamente'})
+    except IntegrityError:
+        return Response({'error': 'Token ya registrado'}, status=400)
+    except Exception as e:
+        print(f'Error al registrar token FCM: {e}')
+        return Response({'error': 'Error interno del servidor'}, status=500)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
