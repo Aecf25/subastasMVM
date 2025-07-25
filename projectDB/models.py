@@ -89,3 +89,12 @@ class UserLoginRecord(models.Model):
 
     def __str__(self):
      return f'{self.user.username} - {self.date}'
+    
+
+class FCMToken(models.Model):
+    user = models.ForeignKey(Usuario, on_delete=models.CASCADE)
+    token = models.CharField(max_length=256, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.token[:10]}"

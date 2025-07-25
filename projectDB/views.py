@@ -3,7 +3,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status, viewsets
 from rest_framework.status import HTTP_400_BAD_REQUEST
-from .models import Usuario, VehicleUser, BidFormat, BidParticipation, Noticias, UserLoginRecord
+from .models import Usuario, VehicleUser, BidFormat, BidParticipation, Noticias, UserLoginRecord, FCMToken
 from .serializers import UsuarioSerializer, BidSerializer, BidParticipationSerializer, NoticiasMVMSubastas
 from django.contrib.auth.hashers import check_password
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -533,6 +533,32 @@ def marcar_subastas_como_notificadas(request):
     BidFormat.objects.filter(id__in=ids, winner=user.username).update(notificated=True)
     
     return Response({'message': 'Subastas marcadas como notificadas'})
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def registrar_token_fcm(request):
+    token = request.data.get('token')
+    if not token:
+        return Response({'error': 'Token requerido'}, status=400)
+
+    FCMToken.objects.update_or_create(
+        user=request.user,
+        defaults={'token': token}
+    )
+    return Response({'detail': 'Token registrado correctamente'})
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def eliminar_token_fcm(request):
+    token = request.data.get('token')
+    if not token:
+        return Response({'error': 'Token requerido'}, status=400)
+
+    deleted, _ = FCMToken.objects.filter(user=request.user, token=token).delete()
+    if deleted:
+        return Response({'detail': 'Token FCM eliminado correctamente'})
+    else:
+        return Response({'detail': 'Token no encontrado'}, status=404)
 
 #.\venv\Scripts\Activate
 #python manage.py runserver 0.0.0.0:8000
