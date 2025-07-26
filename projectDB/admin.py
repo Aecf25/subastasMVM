@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Usuario, VehicleUser, BidParticipation, BidFormat, UserLoginRecord
+from .models import Usuario, VehicleUser, BidParticipation, BidFormat, UserLoginRecord, FCMToken
 from django.utils.html import format_html
 
 try:
@@ -44,3 +44,8 @@ class UserLoginRecordAdmin(admin.ModelAdmin):
     list_display = ('user', 'date')
     list_filter = ('date',)
     search_fields = ('user__username',)
+
+class FCMTokenAdmin(admin.ModelAdmin):
+    list_display = ('user', 'token', 'created_at')
+
+admin.site.register(FCMToken, FCMTokenAdmin)

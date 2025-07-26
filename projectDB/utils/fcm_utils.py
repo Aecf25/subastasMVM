@@ -39,14 +39,17 @@ def enviar_notificacion_fcm(token_fcm, titulo, cuerpo, data=None):
         }
     }
     response = session.post(url, json=message)
+    
     if response.status_code == 200:
-        print("Notificación enviada con éxito")
+        print(f"✅ Notificación enviada a token: {token_fcm}")
+    elif response.status_code == 404 or "Invalid registration token" in response.text:
+        print(f"⚠️ Token inválido, eliminando: {token_fcm}")
+        FCMToken.objects.filter(token=token_fcm).delete()
     else:
-        print(f"Error enviando notificación: {response.status_code} {response.text}")
-    return response.status_code, response.text
+        print(f"❌ Error enviando a {token_fcm}: {response.status_code} {response.text}")
 
 def notificar_usuarios(usuarios, titulo, mensaje, data=None):
     for user in usuarios:
-        token_obj = FCMToken.objects.filter(user=user).first()
-        if token_obj:
-            enviar_notificacion_fcm(token_obj.token, titulo, mensaje, data)
+        tokens = FCMToken.objects.filter(user=user).values_list('token', flat=True)
+        for token in tokens:
+            enviar_notificacion_fcm(token, titulo, mensaje, data)
