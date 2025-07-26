@@ -564,32 +564,29 @@ def marcar_subastas_como_notificadas(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def registrar_token_fcm(request):
+    user = request.user
     token = request.data.get('token')
-    if not token:
-        return Response({'error': 'Token requerido'}, status=400)
+    device_id = request.data.get('device_id')
 
-    try:
-        # Opción 1: Crear solo si no existe combinación user-token
-        obj, created = FCMToken.objects.get_or_create(user=request.user, token=token)
-        return Response({'detail': 'Token registrado correctamente'})
-    except IntegrityError:
-        return Response({'error': 'Token ya registrado'}, status=400)
-    except Exception as e:
-        print(f'Error al registrar token FCM: {e}')
-        return Response({'error': 'Error interno del servidor'}, status=500)
+    if not token or not device_id:
+        return Response({"detail": "Token y device_id requeridos."}, status=400)
+
+    # Elimina cualquier token anterior de este dispositivo
+    FCMToken.objects.filter(device_id=device_id).delete()
+
+    # Crea el nuevo token
+    FCMToken.objects.create(user=user, token=token, device_id=device_id)
+    return Response({"detail": "Token registrado correctamente."})
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def eliminar_token_fcm(request):
-    token = request.data.get('token')
-    if not token:
-        return Response({'error': 'Token requerido'}, status=400)
+    device_id = request.data.get("device_id")
+    if not device_id:
+        return Response({"error": "device_id requerido"}, status=400)
 
-    deleted, _ = FCMToken.objects.filter(user=request.user, token=token).delete()
-    if deleted:
-        return Response({'detail': 'Token FCM eliminado correctamente'})
-    else:
-        return Response({'detail': 'Token no encontrado'}, status=404)
+    FCMToken.objects.filter(user=request.user, device_id=device_id).delete()
+    return Response({"message": "Token FCM eliminado"})
 
 #.\venv\Scripts\Activate
 #python manage.py runserver 0.0.0.0:8000

@@ -95,6 +95,10 @@ class FCMToken(models.Model):
     user = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     token = models.CharField(max_length=256, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    device_id = models.CharField(max_length=255)
+
+    class Meta:
+        unique_together = ('user', 'device_id')
 
     def __str__(self):
-        return f"{self.user.username} - {self.token[:10]}"
+        return f"{self.user.username} - {self.device_id}"
