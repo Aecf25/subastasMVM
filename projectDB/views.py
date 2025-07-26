@@ -22,6 +22,8 @@ from django.db.models.functions import ExtractWeek, ExtractYear, ExtractMonth
 from django.core.management import call_command
 import io
 from django.db import IntegrityError
+from projectDB.utils.fcm_utils import enviar_notificacion_fcm, notificar_usuarios
+
 
 @api_view(['POST'])
 @parser_classes([MultiPartParser, FormParser])
@@ -381,6 +383,15 @@ def evaluar_subasta(request, subasta_id):
     subasta.winner = ganador.username
     subasta.save()
 
+    token_obj = FCMToken.objects.filter(user=ganador).first()
+    if token_obj:
+        enviar_notificacion_fcm(
+            token_obj.token,
+            "¡Felicidades! Ganaste la subasta",
+            f"Has ganado la subasta '{subasta.title}'.",
+            data={"subasta_id": str(subasta.id), "tipo": "ganador_subasta"}
+        )
+
     fecha_actual = timezone.now() 
     historial_subasta = {
         'subasta_id': subasta.id,
@@ -479,14 +490,29 @@ def actualizar_estado_conexion(request, userId):
     return Response({'message': f'el usuario {userId} se encuentra {connected}'}, status=200)
 
 @api_view(['POST'])
-@parser_classes([MultiPartParser]) 
+@parser_classes([MultiPartParser])
 def agregarNoticia(request):
     print('DATA RECIBIDA:', request.data)
     serializer = NoticiasMVMSubastas(data=request.data)
     if serializer.is_valid():
-        serializer.save()
+        noticia = serializer.save()
+        
+        # Obtener todos los usuarios para notificar
+        usuarios = Usuario.objects.all()
+        
+        titulo = "Nueva noticia creada"
+        mensaje = f"Se ha publicado una noticia: {noticia.title}"
+        data = {
+            "tipo": "nueva_noticia",
+            "noticia_id": str(noticia.id),
+            "title": noticia.title,
+        }
+        
+        # Enviar notificaciones a todos los usuarios
+        notificar_usuarios(usuarios, titulo, mensaje, data)
+        
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-    else: 
+    else:
         print('ERRORES DEL SERIALIZER:', serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

@@ -1,8 +1,9 @@
 from django.core.management.base import BaseCommand
 from django.utils import timezone
-from projectDB.models import BidFormat, BidParticipation
+from projectDB.models import BidFormat, BidParticipation, FCMToken
 from django.contrib.auth import get_user_model
-
+from projectDB.utils.fcm_utils import enviar_notificacion_fcm
+ 
 class Command(BaseCommand):
     help = 'Evalúa subastas vencidas y activa la evaluación automática'
 
@@ -23,6 +24,15 @@ class Command(BaseCommand):
             subasta.estado = 'finalizada'
             subasta.winner = ganador.username
             subasta.save()
+
+            token_obj = FCMToken.objects.filter(user=ganador).first()
+            if token_obj:
+                enviar_notificacion_fcm(
+                token_obj.token,
+                "¡Felicidades! Ganaste la subasta",
+                f"Has ganado la subasta '{subasta.title}'.",
+                data={"subasta_id": str(subasta.id), "tipo": "ganador_subasta"}
+            )
 
             historial_subasta = {
                 'subasta_id': subasta.id,

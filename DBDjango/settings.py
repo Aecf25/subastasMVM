@@ -168,3 +168,9 @@ STATICFILES_FINDERS = [
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 ]
+
+try:
+    from projectDB.utils.firebase_init import initialize_firebase
+    initialize_firebase()
+except Exception as e:
+    print(f"Error inicializando Firebase: {e}")
