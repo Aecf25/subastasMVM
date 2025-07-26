@@ -383,15 +383,15 @@ def evaluar_subasta(request, subasta_id):
     subasta.winner = ganador.username
     subasta.save()
 
-    token_obj = FCMToken.objects.filter(user=ganador).first()
-    if token_obj:
+    tokens = FCMToken.objects.filter(user=ganador).values_list('token', flat=True)
+    for token in tokens:
         enviar_notificacion_fcm(
-            token_obj.token,
-            "¡Felicidades! Ganaste la subasta",
-            f"Has ganado la subasta '{subasta.title}'.",
-            data={"subasta_id": str(subasta.id), "tipo": "ganador_subasta"}
+        token,
+        "¡Felicidades! Ganaste la subasta",
+        f"Has ganado la subasta '{subasta.title}'.",
+        data={"subasta_id": str(subasta.id), "tipo": "ganador_subasta"}
         )
-
+        
     fecha_actual = timezone.now() 
     historial_subasta = {
         'subasta_id': subasta.id,
