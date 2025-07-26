@@ -158,6 +158,21 @@ class BidViewSet(viewsets.ModelViewSet):
     serializer_class = BidSerializer
     permission_classes = [IsAdminOrUpdatePriceOnly]
 
+    def perform_create(self, serializer):
+        subasta = serializer.save()
+        usuarios = Usuario.objects.all()
+
+        # Construir notificación
+        titulo = "Nueva subasta creada"
+        mensaje = f"¡Ya puedes participar en la subasta '{subasta.title}'!"
+        data = {
+            "tipo": "nueva_subasta",
+            "subasta_id": str(subasta.id),
+        }
+
+        # Enviar notificaciones
+        notificar_usuarios(usuarios, titulo, mensaje, data)
+
 
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated])
@@ -180,6 +195,19 @@ def editar_subasta(request, subasta_id):
                     setattr(subasta, field, data[field])
         subasta.save()
         serializer = BidSerializer(subasta)
+
+        usuarios = Usuario.objects.all()
+        
+        titulo = "Se modificó una subasta!"
+        mensaje = f"La subasta '{subasta.title}' ha sido modificada. ¡Consulta los detalles!"
+        data = {
+            "tipo": "subasta_modificada",
+            "subasta_id": str(subasta.id),
+        }
+        
+        # Enviar notificaciones a todos los usuarios
+        notificar_usuarios(usuarios, titulo, mensaje, data)
+
         return Response({'mensaje': 'Subasta actualizada por admin.', 'data': serializer.data}, status=status.HTTP_200_OK)
     
     else:
@@ -469,6 +497,19 @@ def confirmar_entrega_subasta(request, subasta_id):
 
     subasta.estado = 'exitosa'
     subasta.save()
+
+    admins = Usuario.objects.filter(is_staff=True)
+    
+    titulo = "Subasta marcada como exitosa"
+    mensaje = f"La subasta '{subasta.title}' ha sido confirmada como entregada por el ganador."
+
+    data = {
+        "tipo": "subasta_exitosa",
+        "subasta_id": str(subasta.id),
+        "title": subasta.title,
+    }
+
+    notificar_usuarios(admins, titulo, mensaje, data)
     return Response({'message': 'Subasta marcada como exitosa'}, status=200)
 
 @api_view(['POST'])
