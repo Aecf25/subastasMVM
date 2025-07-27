@@ -14,7 +14,7 @@ def get_authorized_session():
         creds = service_account.Credentials.from_service_account_info(credentials_dict, scopes=SCOPES)
     else:
         creds = service_account.Credentials.from_service_account_file(
-            os.path.join(os.path.dirname(__file__), '../keys/firebase-service-account.json'),
+            os.path.join(os.path.dirname(__file__), '../keys/mvm-subastas-firebase-adminsdk-fbsvc-73f08d9323.json'),
             scopes=SCOPES
         )
     return AuthorizedSession(creds)
