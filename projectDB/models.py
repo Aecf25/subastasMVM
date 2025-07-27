@@ -51,6 +51,7 @@ class BidFormat(models.Model):
      ]
      estado = models.CharField(max_length=20, choices=ESTADOS, default='activa')
      historial_pujas_activa = models.JSONField(default=list, blank=True)
+     notificado_expiracion= models.BooleanField(default=False)
 
      def __str__(self):
           return f"{self.title} - {self.price}"

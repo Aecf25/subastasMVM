@@ -78,7 +78,7 @@ class BidSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'imgBid', 'title', 'direction1', 'direction2',
             'timeLimit', 'price', 'winner', 'notificated',
-            'created', 'estado', 'historial_pujas_activa'
+            'created', 'estado', 'notificado_expiracion', 'historial_pujas_activa'
         ]
         extra_kwargs = {
             'winner': {'required': False},
